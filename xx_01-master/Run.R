@@ -47,7 +47,7 @@ saveRDS(d4, file="./data_clean/all_municp")
 d4 <- readRDS("./data_clean/all_municp")
 municip <- readRDS("./data_raw/norwayLocations.RDS")
 
-for (i in rev(unique(c(d4$location))[144:422])) {
+for (i in unique(c(d4$location))[1:422]) {
   #9. Split the data into training data and production data
   dtrain <- data.frame()
   dprod <- data.frame()
@@ -96,7 +96,7 @@ for (i in rev(unique(c(d4$location))[144:422])) {
     } 
   
   # 14. Refit the model using the new training data (without any outbreaks in it)
-  #smodel2 <- auto.arima(ts(dtrain$value_no_ob, frequency=52), D=1, seasonal=TRUE, allowdrift=FALSE, stepwise=TRUE, approximation=TRUE)
+  smodel2 <- auto.arima(ts(dtrain$value_no_ob, frequency=52), D=1, seasonal=TRUE, allowdrift=FALSE, stepwise=TRUE, approximation=TRUE)
   
   # 15. Create a 2 standard deviation prediction interval for the production data
   smodel3 <- auto.arima(ts(dprod$value), seasonal=TRUE,allowdrift = FALSE, stepwise=TRUE, approximation=TRUE)
@@ -159,15 +159,13 @@ for (i in rev(unique(c(d4$location))[144:422])) {
 
 #Creative exercise
 library(rgdal)
-library(maptools)
-library(sf)
 
 d5 <- d4
 d5$municipName <- NA
 d5$countyName <- NA
 
 for (e in 1:nrow(d5)){
-  names <- paste(municip[which(municip$municip == d5[e,1]),])
+  names <- paste(municip[which(municip$municip == paste(d5[e,1])),])
   d5[e,4] <- names[2]
   d5[e,5] <- names[4]
 }
@@ -197,56 +195,87 @@ ggnorway <- fortify(norway, region = "NAME_1")
 ggnorway_final <- merge(ggnorway, d5_wk52, by="id", all=TRUE)
 ggnorway_final$Incidence <- as.integer(ggnorway_final$Incidence) 
 
-ggplot(ggnorway_final) +
+wk52 <- ggplot(ggnorway_final) +
   geom_polygon(aes(long, lat, group=group, fill = Incidence)) +
   geom_path(color="black", aes(long,lat, group=group)) +
   theme_bw() + 
-  scale_fill_continuous(low='#EEEEEE', high='darkred')
-  
-  
-  
+  scale_fill_continuous(low='#EEEEEE', high='red', limits = c(17,30)) +
+  labs(title = "Disease X incidence (per 10,000) in Norway: 52/2010", fill = "Incidence per 10,000")
+ggsave("./results/creative_assignment/wk_52.png")
 
+##WEEK 51
+d5_wk51 <- d5 %>%
+  filter(date == "2010-51") %>%
+  group_by(countyName) %>%
+  summarize(value = sum(value))
 
+d5_wk51$incidence <- as.integer(unlist(d5_wk51$value/county_numbers[,2]))
+d5_wk51[11,1] <- "Ãstfold"
+d5_wk51[19,] <- c("Nord-Trøndelag", d5_wk51$value[16], d5_wk51$incidence[16])
+d5_wk51[16,1] <- "Sør-Trøndelag"
+d5_wk51[4,1] <- "Finnmark"
+d5_wk51[7,1] <- "Møre og Romsdal"
+d5_wk51[13,1] <- "Sogn og Fjordane"
+colnames(d5_wk51) <- c("id", "value", "Incidence")
+ggnorway_final51 <- merge(ggnorway, d5_wk51, by="id", all=TRUE)
+ggnorway_final51$Incidence <- as.integer(ggnorway_final51$Incidence)
 
+wk51 <- ggplot(ggnorway_final51) +
+  geom_polygon(aes(long, lat, group=group, fill = Incidence)) +
+  geom_path(color="black", aes(long,lat, group=group)) +
+  theme_bw() + 
+  scale_fill_continuous(low='#EEEEEE', high='red', limits = c(17,30)) +
+  labs(title = "Disease X incidence (per 10,000) in Norway: 51/2010", fill = "Incidence per 10,000")
 
+ggsave("./results/creative_assignment/wk_51.png")
 
+##WEEK50
+d5_wk50 <- d5 %>%
+  filter(date == "2010-50") %>%
+  group_by(countyName) %>%
+  summarize(value = sum(value))
 
+d5_wk50$incidence <- as.integer(unlist(d5_wk50$value/county_numbers[,2]))
+d5_wk50[11,1] <- "Ãstfold"
+d5_wk50[19,] <- c("Nord-Trøndelag", d5_wk50$value[16], d5_wk50$incidence[16])
+d5_wk50[16,1] <- "Sør-Trøndelag"
+d5_wk50[4,1] <- "Finnmark"
+d5_wk50[7,1] <- "Møre og Romsdal"
+d5_wk50[13,1] <- "Sogn og Fjordane"
+colnames(d5_wk50) <- c("id", "value", "Incidence")
+ggnorway_final50 <- merge(ggnorway, d5_wk50, by="id", all=TRUE)
+ggnorway_final50$Incidence <- as.integer(ggnorway_final50$Incidence)
 
+wk50 <- ggplot(ggnorway_final50) +
+  geom_polygon(aes(long, lat, group=group, fill = Incidence)) +
+  geom_path(color="black", aes(long,lat, group=group)) +
+  theme_bw() + 
+  scale_fill_continuous(low='#EEEEEE', high='red', limits = c(17,30)) +
+  labs(title = "Disease X incidence (per 10,000) in Norway: 50/2010", fill = "Incidence per 10,000")
 
+ggsave("./results/creative_assignment/wk_50.png")
 
+##WEEK49
+d5_wk49 <- d5 %>%
+  filter(date == "2010-49") %>%
+  group_by(countyName) %>%
+  summarize(value = sum(value))
 
+d5_wk49$incidence <- as.integer(unlist(d5_wk49$value/county_numbers[,2]))
+d5_wk49[11,1] <- "Ãstfold"
+d5_wk49[19,] <- c("Nord-Trøndelag", d5_wk49$value[16], d5_wk49$incidence[16])
+d5_wk49[16,1] <- "Sør-Trøndelag"
+d5_wk49[4,1] <- "Finnmark"
+d5_wk49[7,1] <- "Møre og Romsdal"
+d5_wk49[13,1] <- "Sogn og Fjordane"
+colnames(d5_wk49) <- c("id", "value", "Incidence")
+ggnorway_final49 <- merge(ggnorway, d5_wk49, by="id", all=TRUE)
+ggnorway_final49$Incidence <- as.integer(ggnorway_final49$Incidence)
 
-
-
-county_names <- norway@data[4]
-county_names$NAME_1 <- as.character(county_names$NAME_1)
-
-df <- merge(county_names, d5_wk52[,c(1,3)], by.x = "NAME_1", by.y = "countyName", all = TRUE)
-df <- cbind(Row.names = rownames(df), df)
-df$incidence <- as.numeric(df$incidence)
-colnames(df) <- c("id", "Incidence")
-churn <- df
-
-# We merge Polygons
-norway2 <- maptools::unionSpatialPolygons(norway, norway@data$NAME_1)
-plot(norway2)
-
-plot(norway)
-
-# We build the new SpatialPolygonsDataFrame with the churn rate
-norway3 <- SpatialPolygonsDataFrame(norway, df) 
-
-# Then you can use spplot to visualize the Norwegian regions with their respective churn rate
-# We define the color palette
-pal2 <- colorRampPalette(c("white", "red"))
-# Remove the plot frame
-trellis.par.set(axis.line=list(col=NA))
-# Plot the regions with Lattice
-spplot(norway4_new, "Churn", main="Churn Rate per Norwegian Region (Fylke)", 
-       lwd=.4, col="white", col.regions=pal2(19), colorkey = FALSE, bty="n")
-fortify shape file
-
-
-
-
-
+wk49 <- ggplot(ggnorway_final49) +
+  geom_polygon(aes(long, lat, group=group, fill = Incidence)) +
+  geom_path(color="black", aes(long,lat, group=group)) +
+  theme_bw() + 
+  scale_fill_continuous(low='#EEEEEE', high='red', limits = c(17,30)) +
+  labs(title = "Disease X incidence (per 10,000) in Norway: 49/2010", fill = "Incidence per 10,000")
+ggsave("./results/creative_assignment/wk_49.png")
